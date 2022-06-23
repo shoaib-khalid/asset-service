@@ -119,6 +119,11 @@ public class AssetFileService {
             int i = file.getAbsolutePath().lastIndexOf('.');
             String fileType = file.getAbsolutePath().substring(i+1);
 
+            //check if it folder type
+            if(fileType.contains("\\")){
+                fileType = "File folder";
+            }
+            
             AssetFile af = new AssetFile();
             af.setFileName(file.getName());
             af.setFilePath(file.getAbsolutePath());

@@ -73,17 +73,12 @@ public class AssetFileController {
     @GetMapping(path = {"/file"})
     public ResponseEntity<HttpResponse> getFileAssetByDirectoryPath(
         HttpServletRequest request,
-        @RequestParam(required = false) String directorypath,
         @RequestParam(required = false) String asseturl
     ) {
 
-        //To get file directory based on asset url
-        int k = asseturl.lastIndexOf('/');
-        String filename = asseturl.substring(k+1);
-        String fileDirectory = filePath + "/" + filename;
+        String fileDirectory = assetFileService.getFileDirectoryPath(asseturl);
 
         AssetFile af = assetFileService.fileDetails(fileDirectory);
-        System.out.println(" AAASAAADSADD :::::::::::::::::::"+af.getFileType());
 
  
         HttpResponse response = new HttpResponse(request.getRequestURI());
@@ -96,9 +91,8 @@ public class AssetFileController {
     }
 
     /// Get file asset by encoded uri file path 
-    @GetMapping(value = "/image", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "/view")
     public ResponseEntity<Resource> viewOriginalImage(        
-        @RequestParam(required = false) String directorypath,
         @RequestParam(required = false) String asseturl
 
     ) throws IOException {
@@ -106,17 +100,48 @@ public class AssetFileController {
         //To get file directory based on asset url
         int k = asseturl.lastIndexOf('/');
         String filename = asseturl.substring(k+1);
-        String fileDirectory = filePath + "/" + filename;
+        // String fileDirectory = filePath + "/" + filename;
 
+        String fileDirectory = assetFileService.getFileDirectoryPath(asseturl);
 
         final ByteArrayResource inputStream = new ByteArrayResource(Files.readAllBytes(Paths.get(
             fileDirectory
         )));
         
+            //To get extension file
+            int i = filename.lastIndexOf('.');
+            String fileType = filename.substring(i+1);
+
+            MediaType mediatype ;
+
+            switch (fileType){
+
+                case "png":
+                mediatype = MediaType.IMAGE_PNG;
+                break;
+
+                case "jpg":
+                mediatype = MediaType.IMAGE_JPEG;
+                break;
+
+                case "gif":
+                mediatype = MediaType.IMAGE_GIF;
+                break;
+
+                case "pdf":
+                mediatype = MediaType.APPLICATION_PDF;
+                break;
+
+                default:
+                mediatype = MediaType.APPLICATION_JSON;
+
+            }
+
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentLength(inputStream.contentLength())
+                .contentType(mediatype)
                 .body(inputStream);
 
     }
@@ -124,7 +149,6 @@ public class AssetFileController {
     //https://github.com/lokeshnous/migration/blob/e171df65f7c6eb59901854c3ed069973b5359c80/jobboard/src/main/java/com/advanceweb/afc/jb/home/web/controller/HomeController.java
     @RequestMapping("/resize")
 	public ResponseEntity<byte[]> getResizeImage(
-        @RequestParam(required = false) String directorypath,
         @RequestParam(required = false) String asseturl,
         @RequestParam(required = false) Integer width,
         @RequestParam(required = false) Integer height,
@@ -132,11 +156,7 @@ public class AssetFileController {
             HttpServletRequest request) {
 		try {
 
-            
-            //To get file directory based on asset url
-            int k = asseturl.lastIndexOf('/');
-            String filename = asseturl.substring(k+1);
-            String fileDirectory = filePath + "/" + filename;
+            String fileDirectory = assetFileService.getFileDirectoryPath(asseturl);
 
 			BufferedImage originalImage = ImageIO.read(new File(fileDirectory));
 
@@ -170,6 +190,26 @@ public class AssetFileController {
             
 		}
 	}
+
+    /// Get All file asset  Note : asseturl (only for folder)
+    @GetMapping(path = {"/folder"})
+    public ResponseEntity<HttpResponse> getAllFilesSubFolder(
+        HttpServletRequest request,
+        @RequestParam(required = false) String asseturl
+    ) {
+
+        String fileDirectory = assetFileService.getFileDirectoryPath(asseturl);
+
+        List<AssetFile> fileArrayList= assetFileService.fileListing(fileDirectory);
+
+        HttpResponse response = new HttpResponse(request.getRequestURI());
+
+        response.setData(fileArrayList);
+        response.setStatus(HttpStatus.OK);
+        
+        return ResponseEntity.status(response.getStatus()).body(response);
+
+    }
 
 
 }

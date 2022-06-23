@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.kalsym.assetservice.model.AssetFile;
@@ -20,6 +21,9 @@ import java.awt.RenderingHints;
 
 @Service
 public class AssetFileService {
+
+    @Value("${asset.file.path}")
+    String filePath;
     
     //Progressive Bilinear scalling https://stackoverflow.com/questions/12879540/image-resizing-in-java-to-reduce-image-size
     public BufferedImage scale(BufferedImage img, int targetWidth, int targetHeight) {
@@ -138,13 +142,38 @@ public class AssetFileService {
         int i = directoryPath.getAbsolutePath().lastIndexOf('.');
         String fileType = directoryPath.getAbsolutePath().substring(i+1);
 
+        //check if it folder type
+        if(fileType.contains("\\")){
+            fileType = "File folder";
+        }
+
         AssetFile af = new AssetFile();
         af.setFileName(directoryPath.getName());
         af.setFilePath(directoryPath.getAbsolutePath());
         af.setSize(directoryPath.length());
         af.setFileType(fileType);
 
+
+
         return af;
+    }
+
+    public String getFileDirectoryPath(String asseturl){
+
+        String[] splitAssetUrl = asseturl.split("store-assets");
+     
+        String absolutePath;
+        String fileDirectory;
+
+        if(splitAssetUrl.length == 1){
+            fileDirectory = filePath;
+
+        }else{
+            absolutePath = splitAssetUrl[1];
+            fileDirectory = filePath + absolutePath;
+        }
+    
+        return fileDirectory;
     }
 
 

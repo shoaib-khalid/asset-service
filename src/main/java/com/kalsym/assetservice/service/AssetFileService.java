@@ -123,12 +123,19 @@ public class AssetFileService {
             if(fileType.contains("\\")){
                 fileType = "File folder";
             }
-            
+
+            String asseturlTemp = "http://symplified.it/store-assets";
+
+            String[] splitString = file.getAbsolutePath().split("file-listing");
+            String relativePath = splitString[1];
+            String relativePathUrl = relativePath.replace("\\", "/");
+
             AssetFile af = new AssetFile();
             af.setFileName(file.getName());
             af.setFilePath(file.getAbsolutePath());
             af.setSize(file.length());
             af.setFileType(fileType);
+            af.setAssetUrl(asseturlTemp + relativePathUrl);
 
             fileArrayList.add(af);
             
@@ -152,12 +159,18 @@ public class AssetFileService {
             fileType = "File folder";
         }
 
+        String asseturlTemp = "http://symplified.it/store-assets";
+
+        String[] splitString = directoryPath.getAbsolutePath().split("file-listing");
+        String relativePath = splitString[1];
+        String relativePathUrl = relativePath.replace("\\", "/");
+
         AssetFile af = new AssetFile();
         af.setFileName(directoryPath.getName());
         af.setFilePath(directoryPath.getAbsolutePath());
         af.setSize(directoryPath.length());
         af.setFileType(fileType);
-
+        af.setAssetUrl(asseturlTemp + relativePathUrl);
 
 
         return af;

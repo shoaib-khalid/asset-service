@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kalsym.assetservice.model.AssetFile;
@@ -32,7 +32,7 @@ public class HomeController {
 
     /// Get All file asset
     @RequestMapping("/file-listing")
-    public String welcome(Model model) {
+    public String serverFileList(Model model) {
 
         List<AssetFile> fileArrayList= assetFileService.fileListing(filePath);
 
@@ -40,5 +40,18 @@ public class HomeController {
 
         return "index";
     }
-    
+
+    /// Get All file asset
+    @RequestMapping("/open")
+    public String openFolder(Model model, @RequestParam(required = false) String asseturl) {
+
+        String fileDirectory = assetFileService.getFileDirectoryPath(asseturl);
+
+        List<AssetFile> fileArrayList= assetFileService.fileListing(fileDirectory);
+
+        model.addAttribute("index", fileArrayList);		
+
+        return "index";
+    }
+
 }

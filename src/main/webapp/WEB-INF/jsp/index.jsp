@@ -13,7 +13,7 @@
 	<br/>
 	<table border="1" cellpadding="10">
 		<tr>
-			<th>Name</th><th>File Type</th><th>Size (byte)</th><th>View</th>
+			<th>Name</th><th>File Type</th><th>Size (byte)</th><th>Href</th>
 		</tr>
 		<c:forEach var="file" items="${index}">
 		<tr>
@@ -21,10 +21,15 @@
             <td>${file.fileType}</td>
 			<td>${file.size}</td>
             <c:if test="${(file.fileType == 'File folder')}">
-                <td>Folder</td>
+                <td>
+                    <a href="open?asseturl=${file.assetUrl}" >Open</a>
+                </td>
             </c:if>
             <c:if test="${(file.fileType != 'File folder')}">
-                <td>View</td>
+                <td>
+                    <a href="assets/view?asseturl=${file.assetUrl}" >View</a>
+
+                </td>
             </c:if>
 		</tr>		
 		</c:forEach>

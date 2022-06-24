@@ -13,6 +13,7 @@ public class AssetFile {
     public String filePath;    
     public double size; //kb
     public String fileType;   
+    public String assetUrl;   
 
 
 }

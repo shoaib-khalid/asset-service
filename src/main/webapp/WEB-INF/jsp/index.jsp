@@ -22,12 +22,12 @@
 			<td>${file.size}</td>
             <c:if test="${(file.fileType == 'File folder')}">
                 <td>
-                    <a href="open?asseturl=${file.assetUrl}" >Open</a>
+                    <a href="open?relativePath=${file.relativePath}" >Open</a>
                 </td>
             </c:if>
             <c:if test="${(file.fileType != 'File folder')}">
                 <td>
-                    <a href="assets/view?asseturl=${file.assetUrl}" >View</a>
+                    <a href="${file.relativePath}" >View</a>
 
                 </td>
             </c:if>

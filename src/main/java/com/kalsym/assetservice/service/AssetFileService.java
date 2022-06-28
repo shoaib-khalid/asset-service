@@ -23,7 +23,7 @@ import java.awt.RenderingHints;
 public class AssetFileService {
 
     @Value("${asset.file.path}")
-    String filePath;
+    String filePathOri;
     
     //Progressive Bilinear scalling https://stackoverflow.com/questions/12879540/image-resizing-in-java-to-reduce-image-size
     public BufferedImage scale(BufferedImage img, int targetWidth, int targetHeight) {
@@ -112,6 +112,9 @@ public class AssetFileService {
         // initialize arraylist in order to append elements 
         List<AssetFile> fileArrayList= new ArrayList<>();
 
+        //to get root folder name
+        int l = filePathOri.lastIndexOf('/');
+        String rootFolderName = filePathOri.substring(l+1);
 
         for (File file : newFileList){
 
@@ -126,16 +129,28 @@ public class AssetFileService {
 
             String asseturlTemp = "http://symplified.it/store-assets";
 
-            String[] splitString = file.getAbsolutePath().split("file-listing");
-            String relativePath = splitString[1];
-            String relativePathUrl = relativePath.replace("\\", "/");
+            String[] splitString = file.getAbsolutePath().split(rootFolderName);
+            String relativePathSplit = splitString[1];
+            String relativePath = relativePathSplit.replace("\\", "/");
+
+
+            //to get parent folder name
+            int j = file.getParent().lastIndexOf('\\');
+            String parentFolderName = file.getParent().substring(j+1);
 
             AssetFile af = new AssetFile();
             af.setFileName(file.getName());
             af.setFilePath(file.getAbsolutePath());
             af.setSize(file.length());
             af.setFileType(fileType);
-            af.setAssetUrl(asseturlTemp + relativePathUrl);
+            af.setAssetUrl(asseturlTemp + relativePath);
+
+            if(parentFolderName.equals(rootFolderName)){
+                af.setRelativePath("/"+file.getName());
+            }else{
+                af.setRelativePath(relativePath);
+            }
+            
 
             fileArrayList.add(af);
             
@@ -184,15 +199,21 @@ public class AssetFileService {
         String fileDirectory;
 
         if(splitAssetUrl.length == 1){
-            fileDirectory = filePath;
+            fileDirectory = filePathOri;
 
         }else{
             absolutePath = splitAssetUrl[1];
-            fileDirectory = filePath + absolutePath;
+            fileDirectory = filePathOri + absolutePath;
         }
     
         return fileDirectory;
     }
+
+    public String getFolderFilePath(String relativePath){
+    
+        return filePathOri+relativePath;
+    }
+    
 
 
 }

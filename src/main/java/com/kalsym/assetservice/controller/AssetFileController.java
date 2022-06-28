@@ -45,7 +45,6 @@ import javax.servlet.ServletOutputStream;
 public class AssetFileController {
     
 
-    
     @Value("${asset.file.path}")
     String filePath;
 
@@ -149,14 +148,14 @@ public class AssetFileController {
     //https://github.com/lokeshnous/migration/blob/e171df65f7c6eb59901854c3ed069973b5359c80/jobboard/src/main/java/com/advanceweb/afc/jb/home/web/controller/HomeController.java
     @RequestMapping("/resize")
 	public ResponseEntity<byte[]> getResizeImage(
-        @RequestParam(required = false) String asseturl,
+        @RequestParam(required = false) String relativePath,
         @RequestParam(required = false) Integer width,
         @RequestParam(required = false) Integer height,
 			HttpServletResponse response, 
             HttpServletRequest request) {
 		try {
 
-            String fileDirectory = assetFileService.getFileDirectoryPath(asseturl);
+            String fileDirectory = assetFileService.getFolderFilePath(relativePath);
 
 			BufferedImage originalImage = ImageIO.read(new File(fileDirectory));
 

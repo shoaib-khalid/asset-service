@@ -127,7 +127,7 @@ public class AssetFileService {
                 fileType = "File folder";
             }
 
-            String asseturlTemp = "http://symplified.it/store-assets";
+            // String asseturlTemp = "http://symplified.it/store-assets";
 
             String[] splitString = file.getAbsolutePath().split(rootFolderName);
             String relativePathSplit = splitString[1];
@@ -143,7 +143,7 @@ public class AssetFileService {
             af.setFilePath(file.getAbsolutePath());
             af.setSize(file.length());
             af.setFileType(fileType);
-            af.setAssetUrl(asseturlTemp + relativePath);
+            // af.setAssetUrl(asseturlTemp + relativePath);
 
             if(parentFolderName.equals(rootFolderName)){
                 af.setRelativePath("/"+file.getName());
@@ -174,7 +174,7 @@ public class AssetFileService {
             fileType = "File folder";
         }
 
-        String asseturlTemp = "http://symplified.it/store-assets";
+        // String asseturlTemp = "http://symplified.it/store-assets";
 
         String[] splitString = directoryPath.getAbsolutePath().split("file-listing");
         String relativePath = splitString[1];
@@ -185,7 +185,7 @@ public class AssetFileService {
         af.setFilePath(directoryPath.getAbsolutePath());
         af.setSize(directoryPath.length());
         af.setFileType(fileType);
-        af.setAssetUrl(asseturlTemp + relativePathUrl);
+        // af.setAssetUrl(asseturlTemp + relativePathUrl);
 
 
         return af;

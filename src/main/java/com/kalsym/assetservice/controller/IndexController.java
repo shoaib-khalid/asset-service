@@ -43,15 +43,25 @@ public class IndexController {
     @Value("${asset.file.path}")
     String filePathOri;
 
+    @Value("${asset.index.show}")
+    String enableIndexPage;
+
     /// Get All file asset
     @RequestMapping("/index")
     public String serverFileList(Model model) {
 
-        List<AssetFile> fileArrayList= assetFileService.fileListing(filePathOri);
+        if(enableIndexPage.equals("true")){
+            List<AssetFile> fileArrayList= assetFileService.fileListing(filePathOri);
 
-        model.addAttribute("index", fileArrayList);		
+            model.addAttribute("index", fileArrayList);		
+    
+            return "index";
+        }else {
+            return "notfound";
 
-        return "index";
+        }
+
+      
     }
 
     /// Get All file asset

@@ -48,6 +48,9 @@ public class AssetFileController {
     @Value("${asset.file.path}")
     String filePath;
 
+    @Value("${asset.index.show}")
+    String endableIndexPage;
+
     @Autowired
     AssetFileService assetFileService;
 
@@ -57,6 +60,7 @@ public class AssetFileController {
         HttpServletRequest request
     ) {
 
+        
         List<AssetFile> fileArrayList= assetFileService.fileListing(filePath);
 
         HttpResponse response = new HttpResponse(request.getRequestURI());

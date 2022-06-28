@@ -143,6 +143,7 @@ public class AssetFileService {
             af.setFilePath(file.getAbsolutePath());
             af.setSize(file.length());
             af.setFileType(fileType);
+            af.setIsFile(file.isFile());
             // af.setAssetUrl(asseturlTemp + relativePath);
 
             if(parentFolderName.equals(rootFolderName)){

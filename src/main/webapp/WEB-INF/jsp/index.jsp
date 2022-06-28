@@ -20,12 +20,12 @@
 			<td>${file.fileName}</td>
             <td>${file.fileType}</td>
 			<td>${file.size}</td>
-            <c:if test="${(file.fileType == 'File folder')}">
+            <c:if test="${(file.isFile == false)}">
                 <td>
                     <a href="open?relativePath=${file.relativePath}" >Open</a>
                 </td>
             </c:if>
-            <c:if test="${(file.fileType != 'File folder')}">
+            <c:if test="${(file.isFile == true)}">
                 <td>
                     <a href="${file.relativePath}" >View</a>
 

@@ -15,7 +15,8 @@ public class AssetFile {
     public String fileType;   
     // public String assetUrl;
     public String relativePath;   
-   
+    public Boolean isFile;   
+
 
 
 }

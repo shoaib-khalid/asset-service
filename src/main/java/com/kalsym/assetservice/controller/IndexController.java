@@ -138,7 +138,7 @@ public class IndexController {
                            break;
            
                            default:
-                           mediatype = MediaType.APPLICATION_JSON;
+                           mediatype = MediaType.IMAGE_PNG;
            
                        }
            

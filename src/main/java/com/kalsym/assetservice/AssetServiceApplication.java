@@ -2,7 +2,9 @@ package com.kalsym.assetservice;
 
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 // import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.client.RestTemplate;
@@ -18,7 +20,7 @@ import org.springframework.http.converter.BufferedImageHttpMessageConverter;
 
 @SpringBootApplication
 // @EnableJpaRepositories(repositoryBaseClass = CustomRepositoryImpl.class)
-
+@EnableAutoConfiguration(exclude = HibernateJpaAutoConfiguration.class)
 public class AssetServiceApplication {
 
 	public static String VERSION;

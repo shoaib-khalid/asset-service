@@ -123,7 +123,10 @@ public class AssetFileService {
             String fileType = file.getAbsolutePath().substring(i+1);
 
             //check if it folder type
-            if(fileType.contains("\\")){
+            // if(fileType.contains("\\")){
+            //     fileType = "File folder";
+            // }
+            if(file.isFile() == false){
                 fileType = "File folder";
             }
 

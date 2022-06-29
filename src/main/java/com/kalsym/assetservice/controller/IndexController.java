@@ -47,7 +47,7 @@ public class IndexController {
     String enableIndexPage;
 
     /// Get All file asset
-    @RequestMapping("/index")
+    @RequestMapping("index")
     public String serverFileList(Model model) {
 
         if(enableIndexPage.equals("true")){
@@ -65,7 +65,7 @@ public class IndexController {
     }
 
     /// Get All file asset
-    @RequestMapping("/open")
+    @RequestMapping("open")
     public String openFolder(Model model, @RequestParam(required = false) String relativePath) {
 
         String fileDirectory = assetFileService.getFolderFilePath(relativePath);

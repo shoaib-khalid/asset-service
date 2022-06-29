@@ -120,7 +120,6 @@ public class AssetFileService {
 
         LogUtil.info("", "ASSET FILE SERVICE", "Response with rootFolderName" , rootFolderName);
 
-
         for (File file : newFileList){
 
             //to get extension type pf file
@@ -137,11 +136,6 @@ public class AssetFileService {
 
             // String asseturlTemp = "http://symplified.it/store-assets";
 
-            String[] splitString = file.getAbsolutePath().split(rootFolderName);
-            String relativePathSplit = splitString[1];
-            String relativePath = relativePathSplit.replace("\\", "/");
-
-
             //to get parent folder name
             int j = file.getParent().lastIndexOf('\\');
             String parentFolderName = file.getParent().substring(j+1);
@@ -157,9 +151,12 @@ public class AssetFileService {
             if(parentFolderName.equals(rootFolderName)){
                 af.setRelativePath("/"+file.getName());
             }else{
+                //split string for first word only
+                String[] splitString = file.getAbsolutePath().split(rootFolderName,2);
+                String relativePathSplit = splitString[1];
+                String relativePath = relativePathSplit.replace("\\", "/");
                 af.setRelativePath(relativePath);
-            }
-            
+            }            
 
             fileArrayList.add(af);
             

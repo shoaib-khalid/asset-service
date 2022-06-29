@@ -66,10 +66,10 @@ public class IndexController {
 
     /// Get All file asset
     @RequestMapping("open")
-    public String openFolder(Model model, @RequestParam(required = false) String fullPath) {
+    public String openFolder(Model model, @RequestParam(required = false) String relativePath) {
 
-        // String fileDirectory = assetFileService.getFolderFilePath(relativePath);
-        String fileDirectory = fullPath;
+        String fileDirectory = assetFileService.getFolderFilePath(relativePath);
+        // String fileDirectory = fullPath;
 
         List<AssetFile> fileArrayList= assetFileService.fileListing(fileDirectory);
 

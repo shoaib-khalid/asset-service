@@ -11,6 +11,10 @@
 	<groupId>com.kalsym</groupId>
 	<artifactId>asset-service</artifactId>
 	<version>1.0.0</version>
+
+    <!-- USING JSP NEED TO USE WAR PACKAGING -->
+    <packaging>war</packaging>
+
 	<name>asset-service</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>

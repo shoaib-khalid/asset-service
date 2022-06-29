@@ -22,7 +22,7 @@
 			<td>${file.size}</td>
             <c:if test="${(file.isFile == false)}">
                 <td>
-                    <a href="open?relativePath=${file.relativePath}" >Open</a>
+                    <a href="open?fullPath=${file.filePath}" >Open</a>
                 </td>
             </c:if>
             <c:if test="${(file.isFile == true)}">

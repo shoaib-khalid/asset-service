@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.kalsym.assetservice.model.AssetFile;
+import com.kalsym.assetservice.utility.LogUtil;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -115,6 +116,10 @@ public class AssetFileService {
         //to get root folder name
         int l = filePathOri.lastIndexOf('/');
         String rootFolderName = filePathOri.substring(l+1);
+        LogUtil.info("", "ASSET FILE SERVICE", "Response with filePathOri" , filePathOri);
+
+        LogUtil.info("", "ASSET FILE SERVICE", "Response with rootFolderName" , rootFolderName);
+
 
         for (File file : newFileList){
 

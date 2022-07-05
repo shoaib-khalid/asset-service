@@ -14,14 +14,12 @@
 	<table border="1" cellpadding="10">
 		<tr>
 			<th>Name</th>
-			<!-- <th>File Type</th> -->
 			<th>Size (byte)</th>
 			<th>Href</th>
 		</tr>
 		<c:forEach var="file" items="${index}">
 		<tr>
 			<td>${file.fileName}</td>
-            <!-- <td>${file.fileType}</td> -->
 			<td>${file.size}</td>
             <c:if test="${(file.isFile == false)}">
                 <td>

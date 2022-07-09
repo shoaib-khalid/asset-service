@@ -1,5 +1,6 @@
 package com.kalsym.assetservice.controller;
 
+import java.util.Iterator;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,7 +23,13 @@ import com.kalsym.assetservice.utility.HttpResponse;
 import org.springframework.ui.Model;
 
 import java.awt.image.BufferedImage;
+
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
+
 import java.io.ByteArrayOutputStream;
 import org.springframework.http.HttpHeaders;
 import javax.servlet.http.HttpServletResponse;
@@ -83,19 +90,34 @@ public class IndexController {
     public ResponseEntity<?> getResizeImage(
         @RequestParam(required = false) Integer width,
         @RequestParam(required = false) Integer height,
+        @RequestParam(required = false) Float compressValue,
             HttpServletRequest request) {
         try {
 
             String fileDirectory = assetFileService.getFolderFilePath(request.getServletPath());
+            //To get extension file
+            int i = request.getServletPath().lastIndexOf('.');
+            String fileType = request.getServletPath().substring(i+1);
+
+            BufferedImage scaleImage;
 
             if(width != null || height!=null) {
 
                 BufferedImage originalImage = ImageIO.read(new File(fileDirectory));
+
+                switch (fileType){
+           
+                    case "png":
+                    scaleImage = assetFileService.resizeImagePng(originalImage, width, height);
+                    break;
     
-                BufferedImage scaleImage = assetFileService.resizeImage(originalImage, width, height);
+                    default:
+                    scaleImage = assetFileService.resizeImageJpg(originalImage, width, height);
     
+                }
+
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(scaleImage, "jpg", baos);
+                ImageIO.write(scaleImage, fileType, baos);
                 baos.flush();
                 byte[] imageInByte = baos.toByteArray();
                 baos.close();
@@ -109,14 +131,64 @@ public class IndexController {
 
             }
 
+            if(compressValue != null){
+                
+                BufferedImage originalImage = ImageIO.read(new File(fileDirectory));
+                ByteArrayOutputStream compressed = new ByteArrayOutputStream();
+
+                try (ImageOutputStream outputStream = ImageIO.createImageOutputStream(compressed)) {
+                
+                    // NOTE: The rest of the code is just a cleaned up version of your code
+                
+                    // Obtain writer for JPEG format
+                    ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName(fileType).next();
+                
+                    // Configure JPEG compression: 70% quality 0.7f)
+                    ImageWriteParam jpgWriteParam = jpgWriter.getDefaultWriteParam();
+                    //https://stackoverflow.com/questions/28439136/java-image-compression-for-any-image-formatjpg-png-gif
+                    // Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(fileType);
+                    // ImageWriter writer = (ImageWriter) writers.next();
+                    // ImageWriteParam jpgWriteParam = writer.getDefaultWriteParam();
+
+                    //https://stackoverflow.com/questions/2721303/how-to-compress-a-png-image-using-java
+                    if (jpgWriteParam.canWriteCompressed()) {
+                        jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                        jpgWriteParam.setCompressionQuality(compressValue);
+                    }
+                
+                    // Set your in-memory stream as the output
+                    jpgWriter.setOutput(outputStream);
+                
+                    // Write image as JPEG w/configured settings to the in-memory stream
+                    // (the IIOImage is just an aggregator object, allowing you to associate
+                    // thumbnails and metadata to the image, it "does" nothing)
+                    jpgWriter.write(null, new IIOImage(originalImage, null, null), jpgWriteParam);
+                
+                    // Dispose the writer to free resources
+                    jpgWriter.dispose();
+                }
+                
+                // Get data for further processing...
+                // byte[] jpegData = compressed.toByteArray();
+
+                // ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                // ImageIO.write(scaleImage, "jpg", baos);
+                // compressed.flush();
+                byte[] imageInByte = compressed.toByteArray();
+                // compressed.close();
+
+                HttpHeaders responseHeaders = new HttpHeaders();
+                responseHeaders.setContentType(MediaType.IMAGE_PNG);
+                responseHeaders.setContentLength(imageInByte.length);
+        
+                return new ResponseEntity<byte[]>(imageInByte, responseHeaders,
+                        HttpStatus.OK);
+            }
+
 
             final ByteArrayResource inputStream = new ByteArrayResource(Files.readAllBytes(Paths.get(
                 fileDirectory
             )));
-
-                       //To get extension file
-                       int i = request.getServletPath().lastIndexOf('.');
-                       String fileType = request.getServletPath().substring(i+1);
            
                        MediaType mediatype ;
            

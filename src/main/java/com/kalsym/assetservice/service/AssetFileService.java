@@ -5,20 +5,33 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.google.common.io.Files;
 import com.kalsym.assetservice.model.AssetFile;
 import com.kalsym.assetservice.utility.LogUtil;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.IOException;
 import java.awt.Transparency;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-
+import java.awt.image.IndexColorModel;
+import java.awt.image.WritableRaster;
+import java.awt.*;
+// import java.awt.*;
 
 @Service
 public class AssetFileService {
@@ -82,7 +95,7 @@ public class AssetFileService {
     }
 
     //https://www.baeldung.com/java-resize-image
-    public BufferedImage resizeImage(BufferedImage originalImage, Integer targetWidth, Integer targetHeight) throws IOException {
+    public BufferedImage resizeImageJpg(BufferedImage originalImage, Integer targetWidth, Integer targetHeight) throws IOException {
       
         Integer targetedWidth = targetWidth == null ? originalImage.getWidth() : targetWidth;
 
@@ -91,6 +104,24 @@ public class AssetFileService {
         BufferedImage resizedImage = new BufferedImage(targetedWidth, targetedHeight, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics2D = resizedImage.createGraphics();
         graphics2D.drawImage(originalImage, 0, 0, targetedWidth, targetedHeight, null);
+
+        graphics2D.dispose();
+        return resizedImage;
+    }
+    
+    public BufferedImage resizeImagePng(BufferedImage originalImage, Integer targetWidth, Integer targetHeight) throws IOException {
+      
+        Integer targetedWidth = targetWidth == null ? originalImage.getWidth() : targetWidth;
+
+        Integer targetedHeight = targetHeight == null ? originalImage.getHeight() : targetHeight;
+
+        BufferedImage resizedImage = new BufferedImage(targetedWidth, targetedHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics2D = resizedImage.createGraphics();
+        //use this if you want to have smooth image
+        Image tmp = originalImage.getScaledInstance(targetedWidth, targetedHeight, Image.SCALE_SMOOTH);
+        graphics2D.drawImage(tmp, 0, 0, targetedWidth, targetedHeight, null);
+        // graphics2D.drawImage(originalImage, 0, 0, targetedWidth, targetedHeight, null);
+
         graphics2D.dispose();
         return resizedImage;
     }
@@ -220,6 +251,105 @@ public class AssetFileService {
         return filePathOri+relativePath;
     }
     
+    public static BufferedImage convertRGBAToIndexed(BufferedImage originalImage) {
+        BufferedImage dest = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_BYTE_INDEXED);
+        Graphics g = dest.getGraphics();
+        g.setColor(new Color(231, 20, 189));
+        g.fillRect(0, 0, dest.getWidth(), dest.getHeight());
+        dest = makeTransparent(dest, 0, 0);
+        dest.createGraphics().drawImage(originalImage, 0, 0, null);
+        return dest;
+    }
+
+    public static BufferedImage makeTransparent(BufferedImage originalImage, int x, int y) {
+        ColorModel cm = originalImage.getColorModel();
+        if (!(cm instanceof IndexColorModel))
+            return originalImage; // sorry...
+        IndexColorModel icm = (IndexColorModel) cm;
+        WritableRaster raster = originalImage.getRaster();
+        int pixel = raster.getSample(x, y, 0);
+        int size = icm.getMapSize();
+        byte[] reds = new byte[size];
+        byte[] greens = new byte[size];
+        byte[] blues = new byte[size];
+        icm.getReds(reds);
+        icm.getGreens(greens);
+        icm.getBlues(blues);
+        IndexColorModel icm2 = new IndexColorModel(8, size, reds, greens, blues, pixel);
+        return new BufferedImage(icm2, raster, originalImage.isAlphaPremultiplied(), null);
+    }
+
+    public static Dimension getScaledDimension(Dimension imgSize, Dimension boundary) {
+        int original_width = imgSize.width;
+        int original_height = imgSize.height;
+        int bound_width = boundary.width;
+        int bound_height = boundary.height;
+        int new_width = 0;
+        int new_height = 0;
+    
+        if (original_width > original_height) {
+            new_width = bound_width;
+            new_height = (new_width*original_height)/original_width;
+        } else {
+            new_height = bound_height;
+            new_width = (new_height*original_width)/original_height;
+        }
+    
+        return new Dimension(new_width, new_height);
+    }
+
+    public static void resizeImage(File original_image, File resized_image, int IMG_SIZE) {
+        try {
+            BufferedImage originalImage = ImageIO.read(original_image);
+    
+            String extension = Files.getFileExtension(original_image.getName());
+    
+            int type = extension.equals("gif") || (originalImage.getType() == 0) ? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
+    
+            Dimension new_dim = getScaledDimension(new Dimension(originalImage.getWidth(), originalImage.getHeight()), new Dimension(IMG_SIZE,IMG_SIZE));
+    
+            BufferedImage resizedImage = new BufferedImage((int) new_dim.getWidth(), (int) new_dim.getHeight(), type);
+            Graphics2D g = resizedImage.createGraphics();
+            g.drawImage(originalImage, 0, 0, (int) new_dim.getWidth(), (int) new_dim.getHeight(), null);
+            g.dispose();            
+    
+            if (!extension.equals("gif")) {
+                ImageIO.write(resizedImage, extension, resized_image);
+            } else {
+                // Gif Transparence workarround
+                ImageIO.write(convertRGBAToIndexed(resizedImage), "gif", resized_image);
+            }
+    
+        } catch (IOException e) {
+            // Utils.log("resizeImage", e.getMessage());
+        }
+    }
+
+    public ImageWriteParam compressedImage(BufferedImage originalImage) throws IOException {
+      
+        ImageOutputStream outputStream = ImageIO.createImageOutputStream(originalImage);
+        // Obtain writer for JPEG format
+        ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName("JPEG").next();
+        
+        // Configure JPEG compression: 70% quality
+        ImageWriteParam jpgWriteParam = jpgWriter.getDefaultWriteParam();
+        jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+        jpgWriteParam.setCompressionQuality(0.7f);
+
+        // Set your in-memory stream as the output
+        jpgWriter.setOutput(outputStream);
+
+        // Write image as JPEG w/configured settings to the in-memory stream
+        // (the IIOImage is just an aggregator object, allowing you to associate
+        // thumbnails and metadata to the image, it "does" nothing)
+        jpgWriter.write(null, new IIOImage(originalImage, null, null), jpgWriteParam);
+
+        // Dispose the writer to free resources
+        jpgWriter.dispose();
+
+        return jpgWriteParam;
+
+    }
 
 
 }

@@ -134,48 +134,16 @@ public class IndexController {
             if(compressValue != null){
                 
                 BufferedImage originalImage = ImageIO.read(new File(fileDirectory));
-                ByteArrayOutputStream compressed = new ByteArrayOutputStream();
-
-                try (ImageOutputStream outputStream = ImageIO.createImageOutputStream(compressed)) {
-                
-                    // NOTE: The rest of the code is just a cleaned up version of your code
-                
-                    // Obtain writer for JPEG format
-                    ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName(fileType).next();
-                
-                    // Configure JPEG compression: 70% quality 0.7f)
-                    ImageWriteParam jpgWriteParam = jpgWriter.getDefaultWriteParam();
-                    //https://stackoverflow.com/questions/28439136/java-image-compression-for-any-image-formatjpg-png-gif
-                    // Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(fileType);
-                    // ImageWriter writer = (ImageWriter) writers.next();
-                    // ImageWriteParam jpgWriteParam = writer.getDefaultWriteParam();
-
-                    //https://stackoverflow.com/questions/2721303/how-to-compress-a-png-image-using-java
-                    if (jpgWriteParam.canWriteCompressed()) {
-                        jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                        jpgWriteParam.setCompressionQuality(compressValue);
-                    }
-                
-                    // Set your in-memory stream as the output
-                    jpgWriter.setOutput(outputStream);
-                
-                    // Write image as JPEG w/configured settings to the in-memory stream
-                    // (the IIOImage is just an aggregator object, allowing you to associate
-                    // thumbnails and metadata to the image, it "does" nothing)
-                    jpgWriter.write(null, new IIOImage(originalImage, null, null), jpgWriteParam);
-                
-                    // Dispose the writer to free resources
-                    jpgWriter.dispose();
-                }
+                ByteArrayOutputStream compressed = assetFileService.compressedImage(originalImage,compressValue,fileType);
                 
                 // Get data for further processing...
                 // byte[] jpegData = compressed.toByteArray();
 
                 // ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 // ImageIO.write(scaleImage, "jpg", baos);
-                // compressed.flush();
+                compressed.flush();
                 byte[] imageInByte = compressed.toByteArray();
-                // compressed.close();
+                compressed.close();
 
                 HttpHeaders responseHeaders = new HttpHeaders();
                 responseHeaders.setContentType(MediaType.IMAGE_PNG);
@@ -208,6 +176,10 @@ public class IndexController {
            
                            case "pdf":
                            mediatype = MediaType.APPLICATION_PDF;
+                           break;
+
+                           case "svg":
+                           mediatype = MediaType.APPLICATION_XML;
                            break;
            
                            default:

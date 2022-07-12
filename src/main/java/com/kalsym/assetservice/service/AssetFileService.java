@@ -3,7 +3,6 @@ package com.kalsym.assetservice.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -11,7 +10,6 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +19,7 @@ import com.kalsym.assetservice.utility.LogUtil;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.awt.Transparency;
@@ -30,6 +29,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
+
 import java.awt.*;
 // import java.awt.*;
 
@@ -325,29 +325,43 @@ public class AssetFileService {
         }
     }
 
-    public ImageWriteParam compressedImage(BufferedImage originalImage) throws IOException {
+    public ByteArrayOutputStream compressedImage(BufferedImage originalImage,Float compressValue, String fileType) throws IOException {
       
-        ImageOutputStream outputStream = ImageIO.createImageOutputStream(originalImage);
-        // Obtain writer for JPEG format
-        ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName("JPEG").next();
+        ByteArrayOutputStream compressed = new ByteArrayOutputStream();
+
+        try (ImageOutputStream outputStream = ImageIO.createImageOutputStream(compressed)) {
+                
+            // Obtain writer for JPEG format
+            ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName(fileType).next();
         
-        // Configure JPEG compression: 70% quality
-        ImageWriteParam jpgWriteParam = jpgWriter.getDefaultWriteParam();
-        jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-        jpgWriteParam.setCompressionQuality(0.7f);
+            // Configure JPEG compression: 70% quality 0.7f)
+            ImageWriteParam jpgWriteParam = jpgWriter.getDefaultWriteParam();
+            //https://stackoverflow.com/questions/28439136/java-image-compression-for-any-image-formatjpg-png-gif
+            // Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(fileType);
+            // ImageWriter writer = (ImageWriter) writers.next();
+            // ImageWriteParam jpgWriteParam = writer.getDefaultWriteParam();
 
-        // Set your in-memory stream as the output
-        jpgWriter.setOutput(outputStream);
+            //https://stackoverflow.com/questions/2721303/how-to-compress-a-png-image-using-java
+            if (jpgWriteParam.canWriteCompressed()) {
+                jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                jpgWriteParam.setCompressionQuality(compressValue);
 
-        // Write image as JPEG w/configured settings to the in-memory stream
-        // (the IIOImage is just an aggregator object, allowing you to associate
-        // thumbnails and metadata to the image, it "does" nothing)
-        jpgWriter.write(null, new IIOImage(originalImage, null, null), jpgWriteParam);
+            }
 
-        // Dispose the writer to free resources
-        jpgWriter.dispose();
+           // Set your in-memory stream as the output
+           jpgWriter.setOutput(outputStream);
+            
+           // Write image as JPEG w/configured settings to the in-memory stream
+           // (the IIOImage is just an aggregator object, allowing you to associate
+           // thumbnails and metadata to the image, it "does" nothing)
+           jpgWriter.write(null, new IIOImage(originalImage, null, null), jpgWriteParam);
+       
+           // Dispose the writer to free resources
+           jpgWriter.dispose();
+        }
 
-        return jpgWriteParam;
+
+        return compressed;
 
     }
 

@@ -36,6 +36,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
+import java.awt.image.PixelGrabber;
 
 import java.awt.*;
 // import java.awt.*;
@@ -295,17 +296,22 @@ public class AssetFileService {
                 originalImage.getHeight(),  // Returns the height of the BufferedImage.
                 BufferedImage.TYPE_INT_BGR);//TYPE_INT_BGR || TYPE_INT_ARGB   BufferedImage.TYPE_INT_BGR
 
-                // Image tmp = originalImage.getScaledInstance(originalImage.getWidth(), originalImage.getHeight(), Image.SCALE_SMOOTH);
-
                 newBufferedImage.createGraphics()
                 .drawImage(newBufferedImage, 0, 0, Color.white, null);
 
+                Graphics2D g2d = newBufferedImage.createGraphics();
+                g2d.setColor(Color.WHITE);
+                g2d.fillRect(0, 0, newBufferedImage.getWidth(), newBufferedImage.getHeight());
+                g2d.drawImage(originalImage, 0, 0, null);
+                g2d.dispose();
+
                 //fix colour  
-                int[] rgb = originalImage.getRGB(0, 0, originalImage.getWidth(), originalImage.getHeight(), null, 0, originalImage.getWidth());
-                newBufferedImage.setRGB(0, 0, originalImage.getWidth(), originalImage.getHeight(), rgb, 0, originalImage.getWidth());
+                // int[] rgb = originalImage.getRGB(0, 0, originalImage.getWidth(), originalImage.getHeight(), null, 0, originalImage.getWidth());
+                // newBufferedImage.setRGB(0, 0, originalImage.getWidth(), originalImage.getHeight(), rgb, 0, originalImage.getWidth());
 
                 //fix colour 
                 // newBufferedImage = this.fixBadImageJPEG(newBufferedImage);
+                
                 newBufferedImage.flush();
 
                 jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);

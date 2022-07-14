@@ -189,18 +189,23 @@ public class IndexController {
             //if it image type we need to compress with default value
             if(mediatype == MediaType.IMAGE_PNG || mediatype == MediaType.IMAGE_JPEG ){
 
-                ByteArrayOutputStream compressed = assetFileService.compressedImage(originalImage,0.35f,fileType);
+                if(originalImage != null){
+                    ByteArrayOutputStream compressed = assetFileService.compressedImage(originalImage,0.35f,fileType);
                 
-                compressed.flush();
-                byte[] imageInByte = compressed.toByteArray();
-                compressed.close();
-
-                HttpHeaders responseHeaders = new HttpHeaders();
-                responseHeaders.setContentType(MediaType.IMAGE_PNG);
-                responseHeaders.setContentLength(imageInByte.length);
-        
-                return new ResponseEntity<byte[]>(imageInByte, responseHeaders,
-                        HttpStatus.OK);
+                
+                    compressed.flush();
+                    byte[] imageInByte = compressed.toByteArray();
+                    compressed.close();
+                    
+                    
+                        HttpHeaders responseHeaders = new HttpHeaders();
+                        responseHeaders.setContentType(MediaType.IMAGE_PNG);
+                        responseHeaders.setContentLength(imageInByte.length);
+                
+                        return new ResponseEntity<byte[]>(imageInByte, responseHeaders,
+                                HttpStatus.OK);
+                }
+           
             }
            
            

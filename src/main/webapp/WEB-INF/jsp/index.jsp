@@ -14,7 +14,7 @@
 	<table border="1" cellpadding="10">
 		<tr>
 			<th>Name</th>
-			<th>Size (byte)</th>
+			<th>Size (kb)</th>
 			<th>Href</th>
 		</tr>
 		<c:forEach var="file" items="${index}">

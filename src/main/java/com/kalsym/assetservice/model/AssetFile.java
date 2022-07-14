@@ -15,7 +15,18 @@ public class AssetFile {
     public String fileType;   
     // public String assetUrl;
     public String relativePath;   
-    public Boolean isFile;   
+    public Boolean isFile;  
+    
+    // public double getSize() {
+  
+    //     return size/1000;
+    // }
+
+    public void setSize(double num) {
+		this.size = num/1000;
+	}
+
+
 
 
 

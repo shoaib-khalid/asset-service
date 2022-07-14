@@ -100,10 +100,10 @@ public class IndexController {
             String fileType = request.getServletPath().substring(i+1);
 
             BufferedImage scaleImage;
+            BufferedImage originalImage = ImageIO.read(new File(fileDirectory));
+
 
             if(width != null || height!=null) {
-
-                BufferedImage originalImage = ImageIO.read(new File(fileDirectory));
 
                 switch (fileType){
            
@@ -133,7 +133,6 @@ public class IndexController {
 
             if(compressValue != null){
                 
-                BufferedImage originalImage = ImageIO.read(new File(fileDirectory));
                 ByteArrayOutputStream compressed = assetFileService.compressedImage(originalImage,compressValue,fileType);
                 
                 // Get data for further processing...
@@ -158,41 +157,58 @@ public class IndexController {
                 fileDirectory
             )));
            
-                       MediaType mediatype ;
-           
-                       switch (fileType){
-           
-                           case "png":
-                           mediatype = MediaType.IMAGE_PNG;
-                           break;
-           
-                           case "jpg":
-                           mediatype = MediaType.IMAGE_JPEG;
-                           break;
-           
-                           case "gif":
-                           mediatype = MediaType.IMAGE_GIF;
-                           break;
-           
-                           case "pdf":
-                           mediatype = MediaType.APPLICATION_PDF;
-                           break;
+            MediaType mediatype ;
 
-                           case "svg":
-                           mediatype = MediaType.APPLICATION_XML;
-                           break;
+            switch (fileType){
+
+                case "png":
+                mediatype = MediaType.IMAGE_PNG;
+                break;
+
+                case "jpg":
+                mediatype = MediaType.IMAGE_JPEG;
+                break;
+
+                case "gif":
+                mediatype = MediaType.IMAGE_GIF;
+                break;
+
+                case "pdf":
+                mediatype = MediaType.APPLICATION_PDF;
+                break;
+
+                case "svg":
+                mediatype = MediaType.APPLICATION_XML;
+                break;
+
+                default:
+                mediatype = MediaType.IMAGE_PNG;
+
+            }
+
+            //if it image type we need to compress with default value
+            if(mediatype == MediaType.IMAGE_PNG || mediatype == MediaType.IMAGE_JPEG ){
+
+                ByteArrayOutputStream compressed = assetFileService.compressedImage(originalImage,0.35f,fileType);
+                
+                compressed.flush();
+                byte[] imageInByte = compressed.toByteArray();
+                compressed.close();
+
+                HttpHeaders responseHeaders = new HttpHeaders();
+                responseHeaders.setContentType(MediaType.IMAGE_PNG);
+                responseHeaders.setContentLength(imageInByte.length);
+        
+                return new ResponseEntity<byte[]>(imageInByte, responseHeaders,
+                        HttpStatus.OK);
+            }
            
-                           default:
-                           mediatype = MediaType.IMAGE_PNG;
            
-                       }
-           
-           
-                   return ResponseEntity
-                           .status(HttpStatus.OK)
-                           .contentLength(inputStream.contentLength())
-                           .contentType(mediatype)
-                           .body(inputStream);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentLength(inputStream.contentLength())
+                    .contentType(mediatype)
+                    .body(inputStream);
 
 
        

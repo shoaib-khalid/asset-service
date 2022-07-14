@@ -91,6 +91,7 @@ public class IndexController {
         @RequestParam(required = false) Integer width,
         @RequestParam(required = false) Integer height,
         @RequestParam(required = false) Float compressValue,
+        @RequestParam(required = false) Boolean original,
             HttpServletRequest request) {
         try {
 
@@ -101,6 +102,39 @@ public class IndexController {
 
             BufferedImage scaleImage;
             BufferedImage originalImage = ImageIO.read(new File(fileDirectory));
+
+            final ByteArrayResource inputStream = new ByteArrayResource(Files.readAllBytes(Paths.get(
+                fileDirectory
+            )));
+           
+            MediaType mediatype ;
+
+            switch (fileType){
+
+                case "png":
+                mediatype = MediaType.IMAGE_PNG;
+                break;
+
+                case "jpg":
+                mediatype = MediaType.IMAGE_JPEG;
+                break;
+
+                case "gif":
+                mediatype = MediaType.IMAGE_GIF;
+                break;
+
+                case "pdf":
+                mediatype = MediaType.APPLICATION_PDF;
+                break;
+
+                case "svg":
+                mediatype = MediaType.APPLICATION_XML;
+                break;
+
+                default:
+                mediatype = MediaType.IMAGE_PNG;
+
+            }
 
 
             if(width != null || height!=null) {
@@ -152,37 +186,13 @@ public class IndexController {
                         HttpStatus.OK);
             }
 
+            if(original!= null && original == true){
 
-            final ByteArrayResource inputStream = new ByteArrayResource(Files.readAllBytes(Paths.get(
-                fileDirectory
-            )));
-           
-            MediaType mediatype ;
-
-            switch (fileType){
-
-                case "png":
-                mediatype = MediaType.IMAGE_PNG;
-                break;
-
-                case "jpg":
-                mediatype = MediaType.IMAGE_JPEG;
-                break;
-
-                case "gif":
-                mediatype = MediaType.IMAGE_GIF;
-                break;
-
-                case "pdf":
-                mediatype = MediaType.APPLICATION_PDF;
-                break;
-
-                case "svg":
-                mediatype = MediaType.APPLICATION_XML;
-                break;
-
-                default:
-                mediatype = MediaType.IMAGE_PNG;
+                return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentLength(inputStream.contentLength())
+                .contentType(mediatype)
+                .body(inputStream);
 
             }
 
@@ -215,11 +225,6 @@ public class IndexController {
                     .contentType(mediatype)
                     .body(inputStream);
 
-
-       
-
-            // Display the image
-            // write(response, result.getBody());
         } catch (Exception e) {
             System.out.println("ERROR :::::::"+e.getMessage());
             e.printStackTrace();

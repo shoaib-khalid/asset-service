@@ -19,6 +19,7 @@ import com.kalsym.assetservice.model.AssetFile;
 import com.kalsym.assetservice.model.HttpReponse;
 import com.kalsym.assetservice.service.AssetFileService;
 import com.kalsym.assetservice.utility.HttpResponse;
+import com.kalsym.assetservice.utility.LogUtil;
 
 import org.springframework.ui.Model;
 
@@ -231,6 +232,8 @@ public class IndexController {
 
         } catch (Exception e) {
             System.out.println("ERROR :::::::"+e.getMessage());
+            LogUtil.info("", "ASSET SERVICE", "Response with ERROR" , e.getMessage());
+
             e.printStackTrace();
 
             HttpResponse response = new HttpResponse(request.getRequestURI());

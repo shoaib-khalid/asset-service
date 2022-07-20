@@ -101,7 +101,6 @@ public class IndexController {
             String fileType = request.getServletPath().substring(i+1);
 
             BufferedImage scaleImage;
-            BufferedImage originalImage = ImageIO.read(new File(fileDirectory));
 
             final ByteArrayResource inputStream = new ByteArrayResource(Files.readAllBytes(Paths.get(
                 fileDirectory
@@ -138,6 +137,7 @@ public class IndexController {
 
 
             if(width != null || height!=null) {
+                BufferedImage originalImage = ImageIO.read(new File(fileDirectory));
 
                 switch (fileType){
            
@@ -167,6 +167,8 @@ public class IndexController {
 
             if(compressValue != null){
                 
+                BufferedImage originalImage = ImageIO.read(new File(fileDirectory));
+
                 ByteArrayOutputStream compressed = assetFileService.compressedImage(originalImage,compressValue,fileType);
                 
                 // Get data for further processing...
@@ -198,6 +200,8 @@ public class IndexController {
 
             //if it image type we need to compress with default value
             if(mediatype == MediaType.IMAGE_PNG || mediatype == MediaType.IMAGE_JPEG ){
+
+                BufferedImage originalImage = ImageIO.read(new File(fileDirectory));
 
                 if(originalImage != null){
                     ByteArrayOutputStream compressed = assetFileService.compressedImage(originalImage,0.35f,fileType);

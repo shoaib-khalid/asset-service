@@ -152,7 +152,7 @@ public class IndexController {
                 }
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(scaleImage, fileType, baos);
+                ImageIO.write(scaleImage, "png", baos);
                 baos.flush();
                 byte[] imageInByte = baos.toByteArray();
                 baos.close();

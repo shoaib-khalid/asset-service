@@ -6,7 +6,7 @@ This project was generated with Spring Framework
 
 ## Development server
 
-Run `mvn spring-boot:run` for a dev server. Navigate to `http://localhost:1201/`. The application will automatically reload if you change any of the source files.
+Run `mvn spring-boot:run` for a dev server. Navigate to `http://localhost:1001/`. The application will automatically reload if you change any of the source files.
 
 ## Environment Serve
 ```bash
